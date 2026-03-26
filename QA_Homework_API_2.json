@@ -1,0 +1,737 @@
+{
+  "info": {
+    "_postman_id": "2b1f62a6-4aca-42fe-a660-6238771eca09",
+    "name": "New Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "52949718",
+    "_collection_link": "https://go.postman.co/collection/52949718-2b1f62a6-4aca-42fe-a660-6238771eca09?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "1. Login Employee 1 (Petya)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"token_1\", jsonData.access_token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "username",
+              "value": "{{petya_login}}",
+              "type": "text",
+              "uuid": "727c8888-5291-40eb-9a4d-e70f353191e7"
+            },
+            {
+              "key": "password",
+              "value": "{{petya_password}}",
+              "type": "text",
+              "uuid": "6524a9f4-f3b6-4767-b99d-6a47e77c4605"
+            },
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text",
+              "uuid": "762a6474-2010-4651-a1d4-8b90937b4992"
+            },
+            {
+              "key": "client_id",
+              "value": "personal",
+              "type": "text",
+              "uuid": "3595cf43-5e8b-47e2-b89c-edb7eaffc913",
+              "disabled": true
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/access_token",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "access_token"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Create Task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "// сохраняем id задачи\r",
+              "pm.collectionVariables.set(\"task_id\", jsonData.data.id);\r",
+              "\r",
+              "// проверка имени\r",
+              "pm.test(\"Название задачи\", function () {\r",
+              "    pm.expect(jsonData.data.name).to.eql(pm.collectionVariables.get(\"task_name\"));\r",
+              "});\r",
+              "\r",
+              "// проверка ответственного\r",
+              "pm.test(\"Ответственный\", function () {\r",
+              "    pm.expect(String(jsonData.data.responsible.id))\r",
+              "      .to.eql(String(pm.collectionVariables.get(\"ivan_id\")));\r",
+              "});\r",
+              "\r",
+              "// проверка статуса\r",
+              "pm.test(\"Статус задачи\", function () {\r",
+              "    pm.expect(jsonData.data.status).to.eql(\"assigned\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "protocolProfileBehavior": {
+        "disabledSystemHeaders": {}
+      },
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_1}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_1}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"name\": \"{{task_name}}\",\r\n  \"responsible\": {\r\n    \"id\": \"{{ivan_id}}\",\r\n    \"contentType\": \"Employee\"\r\n  },\r\n  \"isUrgent\": false,\r\n  \"isTemplate\": false,\r\n  \"contentType\": \"Task\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/task",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "task"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Update Task Description",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Description is updated correctly\", function () {\r",
+              "    pm.expect(pm.response.text()).to.include(\"Описание задачи\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_1}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_1}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"statement\": \"Описание задачи\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/task/{{task_id}}",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "task",
+            "{{task_id}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Login Employee 2 (Ivan)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"token_2\", jsonData.access_token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "username",
+              "value": "{{ivan_login}}",
+              "type": "text",
+              "uuid": "d6fa73ba-6d3c-402b-97e0-87c2905b12ed"
+            },
+            {
+              "key": "password",
+              "value": "{{ivan_password}}",
+              "type": "text",
+              "uuid": "39c64746-1a60-4be4-b851-b68878f8fe62"
+            },
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text",
+              "uuid": "9b29cade-01f5-4b17-85ae-7eb5d1f3e41f"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/access_token",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "access_token"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Accept Task (Ivan)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Статус задачи\", function () {\r",
+              "    pm.expect(jsonData.data.status).to.eql(\"accepted\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_2}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_2}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"action\": \"act_accept_task\",\r\n  \"checkTodos\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/task/{{task_id}}/doAction",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "task",
+            "{{task_id}}",
+            "doAction"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Complete Task (Ivan)",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "pm.test(\"Статус задачи\", function () {\r",
+              "    pm.expect(jsonData.data.status).to.eql(\"done\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "auth": {
+          "type": "bearer",
+          "bearer": [
+            {
+              "key": "token",
+              "value": "{{token_2}}",
+              "type": "string"
+            }
+          ]
+        },
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Beatet {{token_1}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"action\": \"act_done\",\r\n  \"checkTodos\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/task/{{task_id}}/doAction",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "task",
+            "{{task_id}}",
+            "doAction"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Add Comment to Task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "\r",
+              "// проверка что комментарий есть\r",
+              "pm.test(\"Комментарий создан\", function () {\r",
+              "    pm.expect(jsonData.data).to.exist;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_2}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"contentType\": \"CommentCreateActionRequest\",\r\n  \"comment\": {\r\n    \"contentType\": \"Comment\",\r\n    \"content\": \"<p>{{comment_text}}</p>\",\r\n    \"attaches\": [],\r\n    \"workTime\": null\r\n  },\r\n  \"transports\": [{}]\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/task/{{task_id}}/comments",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "task",
+            "{{task_id}}",
+            "comments"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Login Employee 1 (Petya) again",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "var jsonData = pm.response.json();\r",
+              "pm.collectionVariables.set(\"token_1\", jsonData.access_token);"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [],
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "username",
+              "value": "{{petya_login}}",
+              "type": "text",
+              "uuid": "aa5ca3a0-f6b5-4a1f-8adf-e1c815c366cc"
+            },
+            {
+              "key": "password",
+              "value": "{{petya_password}}",
+              "type": "text",
+              "uuid": "cdc619bf-f984-48a9-bf5e-21996b7653f6"
+            },
+            {
+              "key": "grant_type",
+              "value": "password",
+              "type": "text",
+              "uuid": "e3397119-9b7a-4bff-a91d-ab41379a1a8a"
+            }
+          ]
+        },
+        "url": {
+          "raw": "{{base_url}}/auth/access_token",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "auth",
+            "access_token"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. Approve Completed Task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Статус задачи\", function () {\r",
+              "    pm.expect(pm.response.text()).to.include(\"completed\");\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_1}}",
+            "type": "text"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"action\": \"act_accept_work\",\r\n  \"checkTodos\": true\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/task/{{task_id}}/doAction",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "task",
+            "{{task_id}}",
+            "doAction"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "10. Delete Task",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Status code is 200\", function () {\r",
+              "    pm.response.to.have.status(200);\r",
+              "});\r",
+              "\r",
+              "pm.test(\"Response body is not empty\", function () {\r",
+              "    pm.expect(pm.response.text()).to.not.be.empty;\r",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token_1}}",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n  \"contentType\": \"MassActionDelete\",\r\n  \"entities\": [\r\n    {\r\n      \"id\":\"{{task_id}}\",\r\n      \"contentType\": \"Task\"\r\n    }\r\n  ],\r\n  \"withNotifications\": false\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{base_url}}/massActionDelete",
+          "host": [
+            "{{base_url}}"
+          ],
+          "path": [
+            "massActionDelete"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "https://m57606602.megaplan.ru/api/v3"
+    },
+    {
+      "key": "petya_login",
+      "value": "petrov@test.ty"
+    },
+    {
+      "key": "petya_password",
+      "value": "test123"
+    },
+    {
+      "key": "ivan_login",
+      "value": "ivanov@test.ty"
+    },
+    {
+      "key": "ivan_password",
+      "value": "test123"
+    },
+    {
+      "key": "token_1 ",
+      "value": "YzdjNGUzNGZhZDkxNzBjYmZjMmQwYWZlMTcyZjBlY2NmYjMwOTk1MmE1MzNjODU3YmMxN2U3YTE2ZGY4OGIzZQ"
+    },
+    {
+      "key": "token_2",
+      "value": "NDE0YjkxYTgxZDVkYzc4YzU0OGZjNjkxMDI4YTUwYjEzOTU2YmJjNjRhYWUwNjJmYzI5M2QxZmM1YmQ2MDc2Yg"
+    },
+    {
+      "key": "task_id",
+      "value": "1000037"
+    },
+    {
+      "key": "petya_id",
+      "value": "1000010"
+    },
+    {
+      "key": "task_name",
+      "value": "Задача для ивана"
+    },
+    {
+      "key": "comment_text",
+      "value": "задача выполнена!"
+    },
+    {
+      "key": "token_1",
+      "value": "MDhkZDkwY2NmMWM5Y2FjYWUwODIwNzBlMTNkZTQzZDJiMjdhY2M1NGE2YjEzZDQ5NDdlMmVjZjQwZWJiM2RhZA"
+    },
+    {
+      "key": "ivan_id",
+      "value": "1000011"
+    }
+  ]
+}
